@@ -1,7 +1,15 @@
 const mongoose = require("mongoose")
 
 const categorySchema = new mongoose.Schema({
-    categoryName: String
+    restaurantId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Restaurant"
+    },
+    categoryName: String,
+    status: {
+        type: Boolean,
+        default: false
+    },
 }, {
     timestamps: true
 })

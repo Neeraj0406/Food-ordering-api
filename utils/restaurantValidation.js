@@ -52,4 +52,38 @@ const loginValidationSchema = Joi.object({
     })
 })
 
-module.exports = { createRestaurantValidation, loginValidationSchema }
+
+const addCategoryValidation = Joi.object({
+    categoryName: Joi.string().required().messages({
+        "*": "Category name is required"
+    })
+})
+
+
+const paginationValidation = Joi.object({
+    pageNumber: Joi.number().integer().required().messages({
+        "number.integer": "Page number must be integer",
+        "number.empty": "Page number is required"
+    }),
+    pageSize: Joi.number().integer().required().messages({
+        "number.integer": "Page Size must be integer",
+        "number.empty": "Page Size is required"
+    }),
+})
+
+
+const subCategoryValidation = Joi.object({
+    categoryId: Joi.string().required().messages({
+        "string.empty": "Category is required",
+    }),
+    subCategoryName: Joi.string().required().messages({
+        "string.empty": "Sub Category is required",
+    }),
+    restaurantId: Joi.string().required().messages({
+        "string.empty": "Restaurant Id is required",
+    }),
+});
+
+
+
+module.exports = { createRestaurantValidation, loginValidationSchema, addCategoryValidation, paginationValidation, subCategoryValidation }

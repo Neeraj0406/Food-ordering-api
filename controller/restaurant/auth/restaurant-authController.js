@@ -64,7 +64,7 @@ const loginRestaurant = async (req, res) => {
             return showError(res, "Invalid Credentials")
         }
 
-        const token = await createjwt({ "_id": restaurantFound._id, "role": 2 })
+        const token = await createjwt({ "id": restaurantFound._id, "role": 2 })
 
         restaurantFound.token = token
         delete restaurantFound.password
@@ -81,5 +81,6 @@ const loginRestaurant = async (req, res) => {
         showServerError(res)
     }
 }
+
 
 module.exports = { createRestaurant, loginRestaurant }
