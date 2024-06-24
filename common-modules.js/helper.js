@@ -5,20 +5,29 @@ const fs = require("fs")
 const path = require("path")
 const appRootPath = require("app-root-path")
 
-const showServerError = (res) => {
-    res.status(500).json({ message: msg.serverError })
+const showServerError = (res, msg) => {
+    return res.status(500).json({ message: msg ? msg.serverError : "Server Error" })
 }
 
 const showData = (res, data) => {
     res.status(200).json({ data: data })
 }
 
+const showResponse = (res, data, message) => {
+    if (message) {
+        res.status(200).json({ data, message })
+    } else {
+        res.status(200).json({ data })
+
+    }
+}
+
 const showMessageOnly = (res, message) => {
     return res.status(200).json({ message: message })
 }
 
-const showError = (message, statusCode = 400) => {
-    res.status(statusCode).json({
+const showError = (res, message, statusCode = 400) => {
+    return res.status(statusCode).json({
         message: message
     })
 }
@@ -75,8 +84,13 @@ const verifyToken = async (token) => {
 
 const removeFile = (files, filePath) => {
     if (files?.length) {
-        for (let file of files) {
-            fs.unlinkSync(path.join(appRootPath.path, file.path))
+        try {
+
+            for (let file of files) {
+                fs.unlinkSync(path.join(appRootPath.path, file.path))
+            }
+        } catch (error) {
+            console.log(error)
         }
     }
 }
@@ -94,4 +108,4 @@ const deleteSavedFiles = (filePaths) => {
 }
 
 
-module.exports = { showServerError, showData, checkDataIsPresent, showMessageOnly, bcryptPassword, checkPassword, showError, createjwt, verifyToken, removeFile, removeSingleFile, deleteSavedFiles }
+module.exports = { showServerError, showData, checkDataIsPresent, showResponse, showMessageOnly, bcryptPassword, checkPassword, showError, createjwt, verifyToken, removeFile, removeSingleFile, deleteSavedFiles }

@@ -1,4 +1,4 @@
-const { addRestaurant, editRestaurant, getAllRestaurant } = require("../../../../controller/admin/user/restaurant/restaurantController")
+const { addRestaurant, editRestaurant, getAllRestaurant, getSingleRestaurant } = require("../../../../controller/admin/user/restaurant/restaurantController")
 const { verifyAdminToken } = require("../../../../middleware/middleware")
 const upload = require("../../../../utils/multer")
 
@@ -21,7 +21,10 @@ router.post("/edit/:id", upload.fields([
     { name: "cancelChequePhoto", maxCount: 1 },
 ]), editRestaurant);
 
-
 router.post("/getall", getAllRestaurant)
+
+router.get("/:id", getSingleRestaurant)
+
+
 
 module.exports = router

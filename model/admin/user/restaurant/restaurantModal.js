@@ -22,7 +22,7 @@ const restaurantSchema = new mongoose.Schema({
     cancelChequePhoto: String,
     status: {
         type: Boolean,
-        default: true // true = show , false = hide
+        default: false // true = show , false = hide
     }
 }, {
     timestamps: true

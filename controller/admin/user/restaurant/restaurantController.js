@@ -1,6 +1,6 @@
-const { showMessageOnly, removeFile, removeSingleFile, deleteSavedFiles, showServerError } = require("../../../../common-modules.js/helper");
+const { showMessageOnly, removeFile, removeSingleFile, deleteSavedFiles, showServerError, showError } = require("../../../../common-modules.js/helper");
 const Restaurant = require("../../../../model/admin/user/restaurant/restaurantModal");
-const { search } = require("../../../../routes/adminRoutes");
+const { search } = require("../../../../routes/admin/adminRoutes");
 
 const addRestaurant = async (req, res) => {
     try {
@@ -25,27 +25,38 @@ const addRestaurant = async (req, res) => {
             removeFile(cancelChequePhoto)
 
 
-            showMessageOnly(res, "Restaurant name is already present")
+            return showMessageOnly(res, "Restaurant name is already present")
 
 
         }
-        else {
-            let coverPhotoPath = coverPhoto[0]?.path
-            let aadharPhotoPath = aadharPhoto?.map((file) => file?.path)
-            let panPhotoPath = panPhoto?.map((file) => file?.path)
-            let foodLicensePhotoPath = foodLicensePhoto?.map((file) => file?.path)
-            let cancelChequePhotoPath = cancelChequePhoto[0]?.path
+        let emailPresent = await Restaurant.findOne({ email })
+        if (emailPresent) {
 
+            removeFile(coverPhoto)
+            removeFile(aadharPhoto)
+            removeFile(panPhoto)
+            removeFile(foodLicensePhoto)
+            removeFile(cancelChequePhoto)
 
-            const newRestaurant = await Restaurant.create(
-                { restaurantName, email, mobileNumber, address1, address2, country, state, city, pinCode, fassaiNumber, password, coverPhoto: coverPhotoPath, aadharPhoto: aadharPhotoPath, panPhoto: panPhotoPath, foodLicensePhoto: foodLicensePhotoPath, cancelChequePhoto: cancelChequePhotoPath })
-
-
-            return res.status(201).json({
-                data: newRestaurant,
-                message: "Restaurant added successfully"
-            })
+            return showError(res, "Email is already present ")
         }
+
+        let coverPhotoPath = coverPhoto[0]?.path
+        let aadharPhotoPath = aadharPhoto?.map((file) => file?.path)
+        let panPhotoPath = panPhoto?.map((file) => file?.path)
+        let foodLicensePhotoPath = foodLicensePhoto?.map((file) => file?.path)
+        let cancelChequePhotoPath = cancelChequePhoto[0]?.path
+
+
+        const newRestaurant = await Restaurant.create(
+            { restaurantName, email, mobileNumber, address1, address2, country, state, city, pinCode, fassaiNumber, password, coverPhoto: coverPhotoPath, aadharPhoto: aadharPhotoPath, panPhoto: panPhotoPath, foodLicensePhoto: foodLicensePhotoPath, cancelChequePhoto: cancelChequePhotoPath, status: true })
+
+
+        return res.status(201).json({
+            data: newRestaurant,
+            message: "Restaurant added successfully"
+        })
+
 
     } catch (error) {
         console.log(error);
@@ -64,7 +75,7 @@ const editRestaurant = async (req, res) => {
         console.log("req.files", req.files)
 
         const { id } = req.params
-        const { restaurantName, email, mobileNumber, address1, address2, country, state, city, pinCode, fassaiNumber, password, deletedAadharPhoto, deletedPanPhoto, deletedFoodLicensePhoto } = req.body
+        const { restaurantName, email, mobileNumber, address1, address2, country, state, city, pinCode, fassaiNumber, deletedAadharPhoto, deletedPanPhoto, deletedFoodLicensePhoto, status } = req.body
         const { coverPhoto, aadharPhoto, panPhoto, foodLicensePhoto, cancelChequePhoto } = req.files
 
         const restaurantDetails = await Restaurant.findById(id)
@@ -100,7 +111,8 @@ const editRestaurant = async (req, res) => {
             city,
             pinCode,
             fassaiNumber,
-            password,
+
+            status
         }
 
 
@@ -166,7 +178,7 @@ const editRestaurant = async (req, res) => {
 
 const getAllRestaurant = async (req, res) => {
     try {
-        const { pageNumber, pageSize, searchString } = req.body
+        const { pageNumber, pageSize, searchString, sortField, sort } = req.body
 
         if (!pageNumber) {
             return showMessageOnly(res, "PageNumber is requried")
@@ -181,14 +193,27 @@ const getAllRestaurant = async (req, res) => {
             sort: { createdAt: -1 },
             skip: ((Number(pageNumber) - 1) * Number(pageNumber)),
             limit: Number(pageSize)
+
+
         }
+        if (sortField && sort) {
+            skipConditions.sort = { [sortField]: Number(sort) }
+        }
+
+        console.log(skipConditions)
         if (searchString) {
+            const regex = new RegExp(searchString, "i");
+
             con["$or"] = [
-                { restaurantName: new RegExp(`^${searchString}$`, "i") },
-                { email: new RegExp(`^${searchString}$`, "i") },
-                { address1: new RegExp(`^${searchString}$`, "i") },
-                { mobileNumber: new RegExp(`^${searchString}$`, "i") }
+                { restaurantName: regex },
+                { email: regex },
+                { address1: regex },
+                { name: regex }
             ]
+
+            if (!isNaN(Number(searchString))) {
+                con["$or"].push({ mobileNumber: Number(searchString) });
+            }
         }
 
         const allRestaurant = await Restaurant.find(con, {}, skipConditions)
@@ -207,4 +232,28 @@ const getAllRestaurant = async (req, res) => {
 }
 
 
-module.exports = { addRestaurant, editRestaurant, getAllRestaurant }
+const getSingleRestaurant = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            showError(res, "Id is required")
+        }
+
+        const restaurant = await Restaurant.findById(id)
+        if (!restaurant) {
+            showError(res, "Restaurant not found")
+        }
+        res.status(200).json({
+            data: restaurant
+        })
+
+    } catch (error) {
+        console.log(error)
+        showServerError(res, error)
+    }
+}
+
+
+
+module.exports = { addRestaurant, editRestaurant, getAllRestaurant, getSingleRestaurant }

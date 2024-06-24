@@ -34,4 +34,8 @@ const verifyAdminToken = async (req, res, next) => {
     }
 }
 
+const verifyAdminAndMerchant = async (req, res, next) =>{
+    
+}
+
 module.exports = { verifyAdminToken }
