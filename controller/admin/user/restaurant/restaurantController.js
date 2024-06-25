@@ -191,7 +191,7 @@ const getAllRestaurant = async (req, res) => {
 
         let skipConditions = {
             sort: { createdAt: -1 },
-            skip: ((Number(pageNumber) - 1) * Number(pageNumber)),
+            skip: ((Number(pageNumber) - 1) * Number(pageSize)),
             limit: Number(pageSize)
 
 

@@ -52,12 +52,15 @@ const getAllSubCategory = async (req, res) => {
 
         const skipConditions = {
             sort: { createAt: -1 },
-            skip: (pageNumber - 1) * pageNumber,
+            skip: (pageNumber - 1) * pageSize,
             limit: pageSize
         }
 
-        const subCategories = await SubCategory.find(con, {}, skipConditions)
-        const totalDocuments = await SubCategory.countDocuments({ status: true })
+        const subCategories = await SubCategory.find(con, { categoryId: 1, subCategoryName: 1, restaurantId: 1 }, skipConditions).populate({
+            path: "restaurantId",
+            select: "restaurantName  name"
+        })
+        const totalDocuments = await SubCategory.countDocuments(con)
         return showResponse(res, { subCategories, totalDocuments })
 
     } catch (error) {
@@ -66,4 +69,4 @@ const getAllSubCategory = async (req, res) => {
 }
 
 
-module.exports = { createSubCategory }
+module.exports = { createSubCategory, getAllSubCategory }

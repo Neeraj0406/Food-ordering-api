@@ -85,5 +85,12 @@ const subCategoryValidation = Joi.object({
 });
 
 
+const addonCategoryValidation = Joi.object({
+    addonCategoryName: Joi.string().required().messages({
+        "*": "Addon Category name is required"
+    }),
+})
 
-module.exports = { createRestaurantValidation, loginValidationSchema, addCategoryValidation, paginationValidation, subCategoryValidation }
+
+
+module.exports = { createRestaurantValidation, loginValidationSchema, addCategoryValidation, paginationValidation, subCategoryValidation, addonCategoryValidation }

@@ -44,7 +44,7 @@ const getAllCategory = async (req, res) => {
         }
         const skipConditions = {
             sort: { createdAt: 1 },
-            skip: (pageNumber - 1) * pageNumber,
+            skip: (pageNumber - 1) * pageSize,
             limit: pageSize
         }
 
