@@ -92,5 +92,23 @@ const addonCategoryValidation = Joi.object({
 })
 
 
+const addonValidation = Joi.object({
+    addonCategory: Joi.string().required().messages({
+        "*": "Addon category is required"
+    }),
+    addonName: Joi.string().required().messages({
+        "*": "Addon name is required"
+    }),
+    price: Joi.number().integer().required().min(1).messages({
+        "number.integer": "Price must be in interger",
+        "number.empty": "Price is required",
+        "number.min": "Number must be greater than 1"
+    }),
+    vegType: Joi.number().integer().required().valid(1, 2).messages({
+        "number.empty": "Veg type is required",
+        "number.any": "Veg type must be either 1 or 2"
+    })
+})
 
-module.exports = { createRestaurantValidation, loginValidationSchema, addCategoryValidation, paginationValidation, subCategoryValidation, addonCategoryValidation }
+
+module.exports = { createRestaurantValidation, loginValidationSchema, addCategoryValidation, paginationValidation, subCategoryValidation, addonCategoryValidation, addonValidation }

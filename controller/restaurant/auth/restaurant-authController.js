@@ -59,9 +59,16 @@ const loginRestaurant = async (req, res) => {
             return showError(res, "Invalid Credentials")
         }
 
+
+
         const verifyPassword = await checkPassword(loginData.password, restaurantFound.password)
         if (!verifyPassword) {
             return showError(res, "Invalid Credentials")
+        }
+
+
+        if (!restaurantFound?.status) {
+            return showError(res, "Your account is not verified yet.")
         }
 
         const token = await createjwt({ "id": restaurantFound._id, "role": 2 })
