@@ -41,6 +41,7 @@ const getAllAddonCategory = async (req, res) => {
         }
 
         let con = {
+            restaurantId: req.restaurantId,
             status: true
         }
         if (serachString) {
@@ -54,7 +55,7 @@ const getAllAddonCategory = async (req, res) => {
         }
 
 
-        const allAddonCategory = await AddonCategory.find(con, {}, skipCondition).populate({ path: "restaurantId", select: "name RestaurantName" })
+        const allAddonCategory = await AddonCategory.find(con, {}, skipCondition).populate({ path: "restaurantId", select: "name restaurantName" })
         const totalCount = await AddonCategory.countDocuments(con)
 
 

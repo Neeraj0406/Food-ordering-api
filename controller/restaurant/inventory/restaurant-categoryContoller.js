@@ -38,10 +38,14 @@ const getAllCategory = async (req, res) => {
             return showError(res, error.details[0].message)
         }
 
-        const con = {
+        let con = {
+            restaurantId: req.restaurantId,
             status: true,
-            categoryName: new RegExp(searchString, "i")
         }
+        if (searchString) {
+            con.categoryName = new RegExp(searchString, "i")
+        }
+
         const skipConditions = {
             sort: { createdAt: 1 },
             skip: (pageNumber - 1) * pageSize,

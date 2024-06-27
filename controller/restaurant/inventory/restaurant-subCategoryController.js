@@ -43,6 +43,7 @@ const getAllSubCategory = async (req, res) => {
         }
 
         const con = {
+            restaurantId: req.restaurantId,
             status: true
         }
 
