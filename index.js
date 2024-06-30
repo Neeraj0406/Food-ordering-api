@@ -14,5 +14,5 @@ app.use("/api/v1/a/", require("./routes/admin/adminRoutes"))
 app.use("/api/v1/b", require("./routes/restaurant/restaruantRotues"))
 
 app.listen(process.env.PORT || 8000, () => {
-    console.log("server is started");
+    console.log("Server is started");
 })

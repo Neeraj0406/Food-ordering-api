@@ -7,10 +7,17 @@ const inventoryRoutes = require("./inventory/index")
 const { verifyAdminToken } = require("../../middleware/middleware")
 
 
+
+//admin panel
 router.use("/auth", authRoutes)
 router.use("/cities", verifyAdminToken, addCitiesRoute)
 router.use("/foodtype", verifyAdminToken, foodTypeRoute)
 router.use("/restaurant", verifyAdminToken, restaurantRoutes)
+router.use("/admin-inventory", verifyAdminToken, inventoryRoutes)
+
+
+
+// restaurant panel
 router.use("/inventory", verifyAdminToken, inventoryRoutes)
 
 

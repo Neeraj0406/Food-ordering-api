@@ -107,5 +107,17 @@ const deleteSavedFiles = (filePaths) => {
     }
 }
 
+// this function to test, the request for pending invertory or invertory
+const checkRequestType = (req) => {
+    const type = req.baseUrl?.split("/")[req.baseUrl?.split("/")?.length - 1]
 
-module.exports = { showServerError, showData, checkDataIsPresent, showResponse, showMessageOnly, bcryptPassword, checkPassword, showError, createjwt, verifyToken, removeFile, removeSingleFile, deleteSavedFiles }
+    if (type == "pending-category") {
+        return "pending-inventory"
+    } else {
+        return "inventory"
+    }
+
+}
+
+
+module.exports = { showServerError, showData, checkDataIsPresent, showResponse, showMessageOnly, bcryptPassword, checkPassword, showError, createjwt, verifyToken, removeFile, removeSingleFile, deleteSavedFiles, checkRequestType }
