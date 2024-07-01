@@ -20,10 +20,10 @@ const productSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "addonCategory"
             },
-            addon: {
+            addon: [{
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Addon"
-            }
+            }]
         }
     ],
     price: Number,
@@ -32,7 +32,28 @@ const productSchema = new mongoose.Schema({
         type: Number,
         enum: [1, 2] //1 veg , 2 nonveg
     },
-    tags: [String],
+    tags: [{
+        recommended: {
+            type: Boolean,
+            default: false
+        },
+        spicy: {
+            type: Boolean,
+            default: false
+        },
+        noGarlicOnion: {
+            type: Boolean,
+            default: false
+        },
+        glutenFree: {
+            type: Boolean,
+            default: false
+        },
+        vegan: {
+            type: Boolean,
+            default: false
+        },
+    }],
 
 
 
