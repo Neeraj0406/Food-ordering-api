@@ -2,6 +2,10 @@ const mongoose = require("mongoose")
 
 const productSchema = new mongoose.Schema({
     productName: String,
+    restaurantId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Restaurant"
+    },
     foodType: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "FoodType"
@@ -32,7 +36,7 @@ const productSchema = new mongoose.Schema({
         type: Number,
         enum: [1, 2] //1 veg , 2 nonveg
     },
-    tags: [{
+    tags: {
         recommended: {
             type: Boolean,
             default: false
@@ -53,8 +57,11 @@ const productSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
-    }],
-
+    },
+    status: {
+        type: Boolean,
+        default: true
+    }
 
 
 })

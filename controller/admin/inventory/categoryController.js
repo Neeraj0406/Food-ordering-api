@@ -7,10 +7,15 @@ const { paginationValidation } = require("../../../utils/restaurantValidation")
 
 const adminEditCategory = async (req, res) => {
     try {
-        const { id, categoryName, restaurantId, status = false } = req.body
-        const requestType = checkRequestType({ id, categoryName, restaurantId, status })
+        let { id, categoryName, restaurantId, status } = req.body
 
-        console.log("id", id, categoryName, restaurantId, status);
+        const requestType = checkRequestType(req)
+
+        if (requestType == "inventory") {
+            status = false
+        }
+
+        console.log("id", requestType, id, categoryName, restaurantId, status);
 
 
 
@@ -18,7 +23,20 @@ const adminEditCategory = async (req, res) => {
         if (error) {
             return showError(res, error.details[0]?.message)
         }
-        res.send("saved")
+
+        const updatedCategory = await Category.findByIdAndUpdate(
+            { _id: id },
+            { categoryName, restaurantId, status },
+            { new: true }
+        )
+
+        let msg = "Category has been updated"
+        if (requestType == "inventory") {
+            msg = "Category has been sent for the admin approval"
+        }
+
+        return showResponse(res, updatedCategory, msg)
+
     } catch (error) {
         showServerError(res)
     }
