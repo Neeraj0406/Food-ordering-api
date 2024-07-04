@@ -14,8 +14,6 @@ const addAddon = async (req, res) => {
             return showError(res, error.details[0].message)
         }
 
-        console.log("continue")
-
         const addonNamePresent = await Addon.findOne({ addonName })
 
 

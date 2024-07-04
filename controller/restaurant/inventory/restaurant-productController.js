@@ -1,5 +1,9 @@
 const { showServerError, showResponse, showError } = require("../../../common-modules.js/helper")
 const Product = require("../../../model/admin/inventory/productModel")
+const FoodType = require("../../../model/admin/master/foodType/foodType")
+const Category = require("../../../model/admin/inventory/categoryModel")
+const SubCategory = require("../../../model/admin/inventory/subCategoryModal")
+const Restaurant = require("../../../model/admin/user/restaurant/restaurantModal")
 
 
 const createProduct = async (req, res) => {
@@ -13,11 +17,7 @@ const createProduct = async (req, res) => {
             return showError(res, "Product name is already present")
         }
 
-
         const newProduct = await Product.create({ productName, restaurantId: req.restaurantId, foodType, category, subCategory, allAddons, price, description, vegType, tags })
-
-
-
 
         return showResponse(res, newProduct, "New product added successfully")
 
@@ -32,45 +32,88 @@ const createProduct = async (req, res) => {
 
 const getAllProduct = async (req, res) => {
     try {
-        const { pageNumber, pageSize, searchString } = req.body
+        let { pageNumber, pageSize, searchString, type, recommended } = req.body
+        pageNumber = Number(pageNumber)
+        pageSize = Number(pageSize)
 
-        let con = { status: true }
-        console.log("searchString", searchString);
+        const regex = new RegExp(searchString, "i")
 
-        if (searchString) {
-            const regex = new RegExp(searchString, "i")
-
-            con["$or"] = [
-                { productName: regex },
-                // { price: regex },
-                // { foodType: regex },
-                // { category: regex }
-            ]
-        }
-
-        const skipCondition = {
-            skip: (pageNumber - 1) * pageSize,
-            limit: pageSize
-        }
-
-        // const allProduct = await Product.find(con, {}, skipCondition).populate(
-        //     ["category", "foodType", "allAddons.addonCategory", "allAddons.addon"]
-        // )
-
-        const allProduct = await Product.aggregate([
+        const aggregationPipeline = [
+            { $match: { status: true } },
+            { $sort: { createdAt: -1 } },
             {
                 $lookup: {
-                    from: 'addoncategories', // Collection name for AddonCategory
-                    localField: 'allAddons.addonCategory',
-                    foreignField: '_id',
-                    as: 'addonCategory'
+                    from: "restaurants",
+                    localField: "restaurantId",
+                    foreignField: "_id",
+                    as: "restaurantDetails"
                 }
-            }
-        ])
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "categoryDetails"
+                }
+            },
+            { $unwind: "$restaurantDetails" },
+            { $unwind: "$categoryDetails" },
 
-        return showResponse(res, allProduct)
+            {
+                $match: {
+                    $or: [
+                        { productName: regex },
+                        { "restaurantDetails.restaurantName": regex },
+                        { "categoryDetails.categoryName": regex },
+                    ]
+                }
+            },
+        ]
+        if (type) {
+            aggregationPipeline.push({
+                $match: {
+                    vegType: type
+                }
+            })
+        }
+        if (recommended) {
+            aggregationPipeline.push({
+                $match: {
+                    "tags.recommended": recommended
+                }
+            },)
+        }
+        const secondAggregation = [...aggregationPipeline]
+        secondAggregation.push({
+            $group: {
+                "_id": "$restaurantId",
+                "count": { "$sum": 1 }
+            }
+
+
+        })
+
+        aggregationPipeline.push(
+            { $skip: (pageNumber - 1) * pageSize },
+            { $limit: pageSize }
+        )
+
+
+
+        const allProducts = await Product.aggregate(aggregationPipeline)
+        const countProduct = await Product.aggregate(secondAggregation)
+
+        return showResponse(res, { allProducts, totalDocument: countProduct[0]?.count })
+
+
+
+
+        // return showResponse(res, allProduct)
 
     } catch (error) {
+        console.log(error);
+
         showServerError(res)
     }
 }
